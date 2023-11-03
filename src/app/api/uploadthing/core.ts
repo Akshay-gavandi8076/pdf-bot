@@ -45,13 +45,14 @@ export const ourFileRouter = {
 
         const pinecone = await getPineconeClient()
         const pineconeIndex = pinecone.Index('quill')
+        console.log(pineconeIndex)
 
         const embeddings = new OpenAIEmbeddings({
           openAIApiKey: process.env.OPENAI_API_KEY,
         })
 
         await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
-          // @ts-ignore
+          //@ts-ignore
           pineconeIndex,
           namespace: createdFile.id,
         })
