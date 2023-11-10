@@ -9,7 +9,7 @@ import {
 } from '@kinde-oss/kinde-auth-nextjs/server'
 import { ArrowRight } from 'lucide-react'
 // import UserAccountNav from './UserAccountNav'
-import MobileNav from './MobileNav'
+// import MobileNav from './MobileNav'
 
 const Navbar = () => {
   const { getUser } = getKindeServerSession()
