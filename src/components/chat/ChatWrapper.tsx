@@ -13,7 +13,7 @@ interface ChatWrapperProps {
 }
 
 const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
-  const { data, isLoading } = trpc.getUserUploadStatus.useQuery(
+  const { data, isLoading } = trpc.getFileUploadStatus.useQuery(
     {
       fileId,
     },
