@@ -29,9 +29,9 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
 
   const utils = trpc.useContext()
 
-  const backupMessage = useRef('')
-
   const { toast } = useToast()
+
+  const backupMessage = useRef('')
 
   const { mutate: sendMessage } = useMutation({
     mutationFn: async ({ message }: { message: string }) => {
@@ -49,25 +49,23 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
 
       return response.body
     },
-
     onMutate: async ({ message }) => {
       backupMessage.current = message
       setMessage('')
 
-      // Step 1
+      // step 1
       await utils.getFileMessages.cancel()
 
-      // Step 2
+      // step 2
       const previousMessages = utils.getFileMessages.getInfiniteData()
 
-      // Step 3
+      // step 3
       utils.getFileMessages.setInfiniteData(
         { fileId, limit: INFINITE_QUERY_LIMIT },
-        // @ts-ignore
         (old) => {
           if (!old) {
             return {
-              page: [],
+              pages: [],
               pageParams: [],
             }
           }
@@ -118,7 +116,6 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
       let done = false
 
       // accumulated response
-
       let accResponse = ''
 
       while (!done) {
@@ -131,7 +128,6 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
         // append chunk to the actual message
         utils.getFileMessages.setInfiniteData(
           { fileId, limit: INFINITE_QUERY_LIMIT },
-          // @ts-ignore
           (old) => {
             if (!old) return { pages: [], pageParams: [] }
 
@@ -139,7 +135,7 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
               page.messages.some((message) => message.id === 'ai-response')
             )
 
-            let updatePages = old.pages.map((page) => {
+            let updatedPages = old.pages.map((page) => {
               if (page === old.pages[0]) {
                 let updatedMessages
 
@@ -149,7 +145,7 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
                       createdAt: new Date().toISOString(),
                       id: 'ai-response',
                       text: accResponse,
-                      isUserMeesage: false,
+                      isUserMessage: false,
                     },
                     ...page.messages,
                   ]
@@ -164,16 +160,22 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
                     return message
                   })
                 }
-                return { ...page, messages: updatedMessages }
+
+                return {
+                  ...page,
+                  messages: updatedMessages,
+                }
               }
+
               return page
             })
 
-            return { ...old, pages: updatePages }
+            return { ...old, pages: updatedPages }
           }
         )
       }
     },
+
     onError: (_, __, context) => {
       setMessage(backupMessage.current)
       utils.getFileMessages.setData(
@@ -196,7 +198,12 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
 
   return (
     <ChatContext.Provider
-      value={{ addMessage, message, handleInputChange, isLoading }}
+      value={{
+        addMessage,
+        message,
+        handleInputChange,
+        isLoading,
+      }}
     >
       {children}
     </ChatContext.Provider>

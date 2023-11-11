@@ -1,8 +1,8 @@
 'use client'
 
-import { trpc } from '@/app/_trpc/client'
-import { Button } from './ui/button'
 import { ArrowRight } from 'lucide-react'
+import { Button } from './ui/button'
+import { trpc } from '@/app/_trpc/client'
 
 const UpgradeButton = () => {
   const { mutate: createStripeSession } = trpc.createStripeSession.useMutation({
@@ -10,6 +10,7 @@ const UpgradeButton = () => {
       window.location.href = url ?? '/dashboard/billing'
     },
   })
+
   return (
     <Button
       onClick={() => createStripeSession()}

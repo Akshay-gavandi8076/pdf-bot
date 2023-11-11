@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
+
 import Dropzone from 'react-dropzone'
 import { Cloud, File, Loader2 } from 'lucide-react'
 import { Progress } from './ui/progress'
@@ -11,13 +12,18 @@ import { useToast } from './ui/use-toast'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
 
-const UploadDropZone = () => {
+const UploadDropzone = ({ isSubscribed }: { isSubscribed: boolean }) => {
   const router = useRouter()
+
   const [isUploading, setIsUploading] = useState<boolean>(false)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
   const { toast } = useToast()
 
-  const { startUpload } = useUploadThing('pdfUploader')
+  const { startUpload } = useUploadThing(
+    isSubscribed ? 'proPlanUploader' : 'freePlanUploader'
+  )
+
+  console.log(startUpload)
 
   const { mutate: startPolling } = trpc.getFile.useMutation({
     onSuccess: (file) => {
@@ -34,7 +40,6 @@ const UploadDropZone = () => {
       setUploadProgress((prevProgress) => {
         if (prevProgress >= 95) {
           clearInterval(interval)
-
           return prevProgress
         }
         return prevProgress + 5
@@ -50,14 +55,14 @@ const UploadDropZone = () => {
       onDrop={async (acceptedFile) => {
         setIsUploading(true)
 
-        const progreeInterval = startSimulatedProgress()
+        const progressInterval = startSimulatedProgress()
 
-        // handle the uploading
+        // handle file uploading
         const res = await startUpload(acceptedFile)
 
         if (!res) {
           return toast({
-            title: 'Somthing went wrong',
+            title: 'Something went wrong',
             description: 'Please try again later',
             variant: 'destructive',
           })
@@ -69,13 +74,13 @@ const UploadDropZone = () => {
 
         if (!key) {
           return toast({
-            title: 'Somthing went wrong',
+            title: 'Something went wrong',
             description: 'Please try again later',
             variant: 'destructive',
           })
         }
 
-        clearInterval(progreeInterval)
+        clearInterval(progressInterval)
         setUploadProgress(100)
 
         startPolling({ key })
@@ -91,13 +96,15 @@ const UploadDropZone = () => {
               htmlFor='dropzone-file'
               className='flex flex-col items-center justify-center w-full h-full rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100'
             >
-              <div className='flex flex-col items-center justify-center pt-5 pb-5'>
+              <div className='flex flex-col items-center justify-center pt-5 pb-6'>
                 <Cloud className='h-6 w-6 text-zinc-500 mb-2' />
                 <p className='mb-2 text-sm text-zinc-700'>
                   <span className='font-semibold'>Click to upload</span> or drag
                   and drop
                 </p>
-                <p>PDF (up to 4MB)</p>
+                <p className='text-xs text-zinc-500'>
+                  PDF (up to {isSubscribed ? '16' : '4'}MB)
+                </p>
               </div>
 
               {acceptedFiles && acceptedFiles[0] ? (
@@ -112,7 +119,7 @@ const UploadDropZone = () => {
               ) : null}
 
               {isUploading ? (
-                <div className='w-full mt-4 max-w-xs my-auto'>
+                <div className='w-full mt-4 max-w-xs mx-auto'>
                   <Progress
                     indicatorColor={
                       uploadProgress === 100 ? 'bg-green-500' : ''
@@ -121,13 +128,14 @@ const UploadDropZone = () => {
                     className='h-1 w-full bg-zinc-200'
                   />
                   {uploadProgress === 100 ? (
-                    <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 pt-2'>
+                    <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
                       <Loader2 className='h-3 w-3 animate-spin' />
                       Redirecting...
                     </div>
                   ) : null}
                 </div>
               ) : null}
+
               <input
                 {...getInputProps()}
                 type='file'
@@ -142,14 +150,15 @@ const UploadDropZone = () => {
   )
 }
 
-const UploadButton = () => {
+const UploadButton = ({ isSubscribed }: { isSubscribed: boolean }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(visible) => {
-        if (!visible) {
-          setIsOpen(visible)
+      onOpenChange={(v) => {
+        if (!v) {
+          setIsOpen(v)
         }
       }}
     >
@@ -161,7 +170,7 @@ const UploadButton = () => {
       </DialogTrigger>
 
       <DialogContent>
-        <UploadDropZone />
+        <UploadDropzone isSubscribed={isSubscribed} />
       </DialogContent>
     </Dialog>
   )

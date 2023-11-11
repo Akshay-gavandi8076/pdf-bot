@@ -1,30 +1,30 @@
-'use client';
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
-import { trpc } from '../_trpc/client';
-import { Loader2 } from 'lucide-react';
+'use client'
 
-const page = () => {
-  const router = useRouter();
+import { useRouter, useSearchParams } from 'next/navigation'
+import { trpc } from '../_trpc/client'
+import { Loader2 } from 'lucide-react'
 
-  const searchParams = useSearchParams();
-  const origin = searchParams.get('origin');
+const Page = () => {
+  const router = useRouter()
 
-  const { data, isLoading } = trpc.authCallback.useQuery(undefined, {
+  const searchParams = useSearchParams()
+  const origin = searchParams.get('origin')
+
+  trpc.authCallback.useQuery(undefined, {
     onSuccess: ({ success }) => {
       if (success) {
-        router.push(origin ? `/${origin}` : '/dashboard');
+        // user is synced to db
+        router.push(origin ? `/${origin}` : '/dashboard')
       }
     },
     onError: (err) => {
       if (err.data?.code === 'UNAUTHORIZED') {
-        router.push('/sign-in');
+        router.push('/sign-in')
       }
     },
     retry: true,
     retryDelay: 500,
-  });
+  })
 
   return (
     <div className='w-full mt-24 flex justify-center'>
@@ -34,7 +34,7 @@ const page = () => {
         <p>You will be redirected automatically.</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default page;
+export default Page
