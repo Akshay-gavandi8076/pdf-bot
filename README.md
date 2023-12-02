@@ -29,6 +29,7 @@ To get started with this project, run
 
 and copy the following variables into a .env file, fill them out & and that's all you need to get started!
 
+```bash
 KINDE_CLIENT_ID
 KINDE_CLIENT_SECRET
 KINDE_ISSUER_URL
@@ -49,3 +50,4 @@ STRIPE_WEBHOOK_SECRET
 PINECONE_API_KEY
 
 PDFBOTAPPS=''
+```
