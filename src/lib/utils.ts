@@ -42,7 +42,7 @@ export function constructMetadata({
       title,
       description,
       images: [image],
-      creator: '@joshtriedcoding',
+      creator: '@akshaygavandi',
     },
     icons,
     metadataBase: new URL('https://pdf-bot-ten.vercel.app/'),
